@@ -23,6 +23,7 @@ from app.handlers.user_message import user
 from app.handlers.admin_message import admin
 from app.handlers.notify_message import notify
 from app.handlers.team_message import team
+from app.handlers.team_user_message import user_team
 
 from app.database.models import create_db
 
@@ -47,11 +48,14 @@ async def main():
     notify.callback_query.middleware(AdminProtect())
     team.message.middleware(AdminProtect())
     team.callback_query.middleware(AdminProtect())
+    user_team.message.middleware(AdminProtect())
+    user_team.callback_query.middleware(AdminProtect())
 
     dp.include_router(user)
     dp.include_router(admin)
     dp.include_router(notify)
     dp.include_router(team)
+    dp.include_router(user_team)
 
     setup_scheduler(
         start_reminders=start_reminders,

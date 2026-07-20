@@ -5,6 +5,7 @@ from app.database.requests.admin.select import get_admins, get_admin_by_tg_id
 from app.database.requests.user.select import get_users
 from app.database.requests.notify.select import get_all_notify
 from app.database.requests.team.select import get_teams
+from app.database.requests.user_team_member.select import get_users_by_team
 
 
 async def admin_panel(tg_id: int):
@@ -121,7 +122,7 @@ async def pulls_cb():
 async def pull_setter(pull_id: int):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="👤 Пользователи", callback_data=f"check_pull_users_{pull_id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
 
     return kb.as_markup()
@@ -130,9 +131,32 @@ async def pull_setter(pull_id: int):
 async def edit_pull(pull_id: int):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="👤 Пользователи", callback_data=f"check_pull_users_{pull_id}"))
     kb.row(InlineKeyboardButton(text="✏️ Изменить название", callback_data=f"edit_pull_{pull_id}"))
     kb.row(InlineKeyboardButton(text="❌ Удалить пулл", callback_data=f"delete_pull_{pull_id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def pull_users(pull_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
+
+    users = await get_users_by_team(pull_id)
+    for user in users:
+        kb.row(InlineKeyboardButton(text=f"{user.tg_id}", callback_data=f"pulluser_{user.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"pull_{pull_id}"))
+
+    return kb.as_markup()
+
+
+async def team_user_panel(user_id: int, pull_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_pull_user_{user_id}"))
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"check_pull_users_{pull_id}"))
 
     return kb.as_markup()

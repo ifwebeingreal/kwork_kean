@@ -31,3 +31,7 @@ class AddTeam(StatesGroup):
 
 class EditTeam(StatesGroup):
     new_name = State()
+
+
+class AddTeamUser(StatesGroup):
+    tg_id = State()

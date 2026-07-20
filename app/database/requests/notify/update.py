@@ -19,3 +19,11 @@ async def update_notify_date(user_id: int, notify_date: datetime):
             update(Notify).where(Notify.id == user_id).values(notify_date=notify_date)
         )
         await session.commit()
+
+
+async def update_notify_team_id(user_id: int, team_id: int):
+    async with async_session() as session:
+        await session.execute(
+            update(Notify).where(Notify.id == user_id).values(team_id=team_id)
+        )
+        await session.commit()

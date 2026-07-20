@@ -20,11 +20,13 @@ class EditUser(StatesGroup):
 class AddNotify(StatesGroup):
     username = State()
     notify_date = State()
+    select_team = State()
 
 
 class EditNotify(StatesGroup):
     new_username = State()
     new_notify_date = State()
+    new_select_team = State()
 
 
 class AddTeam(StatesGroup):

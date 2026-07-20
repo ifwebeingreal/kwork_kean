@@ -94,16 +94,30 @@ async def done(id: int, style: str = "danger"):
     return kb.as_markup()
 
 
-async def notify_cb():
+async def notify_cb(notifies):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="➕ Добавить напоминание", callback_data="add_notify"))
+    kb.row(
+        InlineKeyboardButton(
+            text="➕ Добавить напоминание",
+            callback_data="add_notify"
+        )
+    )
 
-    all_notify = await get_all_notify()
-    for notify in all_notify:
-        kb.row(InlineKeyboardButton(text=f"{notify.username}", callback_data=f"notify_{notify.id}"))
+    for notify in notifies:
+        kb.row(
+            InlineKeyboardButton(
+                text=notify.username,
+                callback_data=f"notify_{notify.id}"
+            )
+        )
 
-    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+    kb.row(
+        InlineKeyboardButton(
+            text="🔙 Назад",
+            callback_data="back"
+        )
+    )
 
     return kb.as_markup()
 
@@ -113,6 +127,7 @@ async def edit_notify(id: int):
 
     kb.row(InlineKeyboardButton(text="✏️ Изменить ник", callback_data=f"edit_notify_username_{id}"))
     kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_notify_date_{id}"))
+    kb.row(InlineKeyboardButton(text="✏️ Изменить пул", callback_data=f"edit_notify_pull_{id}"))
     kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_notify_{id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"all_notify"))
 

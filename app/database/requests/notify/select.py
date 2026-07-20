@@ -21,6 +21,14 @@ async def get_notify(id: int):
         return notify
 
 
+async def get_notify_by_team_id(team_id: int):
+    async with async_session() as session:
+        notify = await session.scalars(
+            select(Notify).where(Notify.team_id == team_id)
+        )
+        return notify
+
+
 async def get_expired_notify():
     # 1. Получаем время строго по Москве
     tz = pytz.timezone('Europe/Moscow')

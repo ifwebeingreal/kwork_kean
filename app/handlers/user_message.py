@@ -101,9 +101,27 @@ async def today_create_user(callback: CallbackQuery, state: FSMContext):
     elif team_member:
         await set_user(username, today, team_id=team_member.team_id)
 
+        tg_id = callback.from_user.id
+
+        admin = await get_admin_by_tg_id(tg_id)
+        team_member = await get_user_by_tg_id(tg_id)
+
+        if admin:
+            users = await get_users()
+
+        elif team_member:
+            users = await get_users_by_team(team_member.team_id)
+
+        else:
+            await callback.answer(
+                "У вас нет доступа!",
+                show_alert=True
+            )
+            return
+
         await callback.message.edit_text(
             "<b>Пользователь был успешно добавлен!</b>",
-            reply_markup=await bkb.users_cb()
+            reply_markup=await bkb.users_cb(users)
         )
 
         await state.clear()
@@ -150,9 +168,27 @@ async def check_created_at(message: Message, state: FSMContext):
                 team_id=team_member.team_id
             )
 
+            tg_id = message.from_user.id
+
+            admin = await get_admin_by_tg_id(tg_id)
+            team_member = await get_user_by_tg_id(tg_id)
+
+            if admin:
+                users = await get_users()
+
+            elif team_member:
+                users = await get_users_by_team(team_member.team_id)
+
+            else:
+                await message.answer(
+                    "У вас нет доступа!",
+                    show_alert=True
+                )
+                return
+
             await message.answer(
                 "<b>Пользователь был успешно добавлен!</b>",
-                reply_markup=await bkb.users_cb()
+                reply_markup=await bkb.users_cb(users)
             )
 
             await state.clear()
@@ -186,9 +222,28 @@ async def select_team(callback: CallbackQuery, state: FSMContext):
         team_id=team_id
     )
 
+    tg_id = callback.from_user.id
+
+    admin = await get_admin_by_tg_id(tg_id)
+    team_member = await get_user_by_tg_id(tg_id)
+
+    if admin:
+        users = await get_users()
+
+    elif team_member:
+        users = await get_users_by_team(team_member.team_id)
+
+    else:
+        await callback.answer(
+            "У вас нет доступа!",
+            show_alert=True
+        )
+        return
+
+
     await callback.message.edit_text(
         "<b>Пользователь был успешно добавлен!</b>",
-        reply_markup=await bkb.users_cb()
+        reply_markup=await bkb.users_cb(users)
     )
 
     await state.clear()
@@ -390,7 +445,25 @@ async def remove_user(callback: CallbackQuery):
     user_id = int(callback.data.split("_")[2])
     await delete_user(user_id)
 
+    tg_id = callback.from_user.id
+
+    admin = await get_admin_by_tg_id(tg_id)
+    team_member = await get_user_by_tg_id(tg_id)
+
+    if admin:
+        users = await get_users()
+
+    elif team_member:
+        users = await get_users_by_team(team_member.team_id)
+
+    else:
+        await callback.answer(
+            "У вас нет доступа!",
+            show_alert=True
+        )
+        return
+
     await callback.message.edit_text(
         "<b>Пользователь был успешно удален!</b>",
-        reply_markup=await bkb.users_cb()
+        reply_markup=await bkb.users_cb(users)
     )

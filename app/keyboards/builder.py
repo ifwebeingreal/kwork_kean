@@ -221,6 +221,8 @@ async def edit_pull(pull_id: int):
     kb = InlineKeyboardBuilder()
 
     kb.row(InlineKeyboardButton(text="👤 Пользователи", callback_data=f"check_pull_users_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="🧑‍💻 Клиенты", callback_data=f"get_pull_users_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="✉️ Уведомления", callback_data=f"get_pull_notify_{pull_id}"))
     kb.row(InlineKeyboardButton(text="✏️ Изменить название", callback_data=f"edit_pull_{pull_id}"))
     kb.row(InlineKeyboardButton(text="❌ Удалить пулл", callback_data=f"delete_pull_{pull_id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))

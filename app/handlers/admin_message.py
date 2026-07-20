@@ -11,7 +11,9 @@ import app.keyboards.inline as ikb
 from app.database.requests.admin.select import get_admins, get_admin
 from app.database.requests.admin.delete import delete_admin
 from app.database.requests.admin.add import set_admin
-from app.database.requests.user.select import get_user
+from app.database.requests.notify.select import get_notify_by_team_id
+from app.database.requests.team.select import get_team
+from app.database.requests.user.select import get_user, get_users_by_team
 from app.database.requests.user.update import update_user_is_over, update_user
 from app.database.requests.user_team_member.select import get_users_team_members
 
@@ -109,6 +111,30 @@ async def done_admin(callback: CallbackQuery):
         await callback.message.edit_reply_markup(
             reply_markup=await bkb.done(user.id, "success")
         )
+
+
+@admin.callback_query(F.data.startswith("get_pull_users_"))
+async def get_pull_users(callback: CallbackQuery):
+    pull_id = int(callback.data.split("_")[3])
+    pull = await get_team(pull_id)
+    users = await get_users_by_team(pull_id)
+
+    await callback.message.edit_text(
+        f"<b>Добавленные пользователи в пулл {pull.name}:</b>",
+        reply_markup=await bkb.users_cb(users)
+    )
+
+
+@admin.callback_query(F.data.startswith("get_pull_users_"))
+async def get_pull_users(callback: CallbackQuery):
+    pull_id = int(callback.data.split("_")[3])
+    pull = await get_team(pull_id)
+    notify = await get_notify_by_team_id(pull_id)
+
+    await callback.message.edit_text(
+        f"<b>Добавленные напоминания в пулл {pull.name}:</b>",
+        reply_markup=await bkb.notify_cb(notify)
+    )
 
 
 @admin.callback_query(F.data == "back")

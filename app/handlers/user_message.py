@@ -193,7 +193,7 @@ async def check_user_info(callback: CallbackQuery):
     )
 
     if admin:
-        text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+        text += f"<b>Пулл:</b> {team.name if team else '-'}\n"
 
     text += "\n<i>Выберите действие:</i>"
 
@@ -240,7 +240,7 @@ async def check_new_username(message: Message, state: FSMContext):
         )
 
         if admin:
-            text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+            text += f"<b>Пулл:</b> {team.name if team else '-'}\n"
 
         text += "\n<i>Выберите действие:</i>"
 
@@ -295,7 +295,7 @@ async def check_new_created_at(message: Message, state: FSMContext):
             )
 
             if admin:
-                text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+                text += f"<b>Пулл:</b> {team.name if team else '-'}\n"
 
             text += "\n<i>Выберите действие:</i>"
 
@@ -355,7 +355,7 @@ async def check_select_team(callback: CallbackQuery, state: FSMContext):
     )
 
     if admin:
-        text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+        text += f"<b>Пулл:</b> {team.name if team else '-'}\n"
 
     text += "\n<i>Выберите действие:</i>"
 

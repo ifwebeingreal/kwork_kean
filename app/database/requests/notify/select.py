@@ -26,7 +26,7 @@ async def get_notify_by_team_id(team_id: int):
         notify = await session.scalars(
             select(Notify).where(Notify.team_id == team_id)
         )
-        return notify
+        return notify.all()
 
 
 async def get_expired_notify():

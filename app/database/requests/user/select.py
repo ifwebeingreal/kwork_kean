@@ -51,4 +51,4 @@ async def get_users_by_team(team_id: int):
             select(User)
             .where(User.team_id == team_id)
         )
-        return users
+        return users.all()

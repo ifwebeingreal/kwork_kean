@@ -2,6 +2,7 @@ from aiogram import F, Router, Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
+from app.database.requests.notify.select import get_notify_by_team_id
 from app.database.requests.team.add import set_team
 from app.database.requests.team.select import get_team
 from app.database.requests.team.update import update_team_name
@@ -9,6 +10,7 @@ from app.database.requests.team.delete import delete_team
 
 import app.keyboards.builder as bkb
 import app.keyboards.inline as ikb
+from app.database.requests.user.select import get_users_by_team
 
 from app.states import AddTeam, EditTeam
 
@@ -56,11 +58,17 @@ async def check_team_name(message: Message, state: FSMContext):
 @team.callback_query(F.data.startswith("pull_"))
 async def pull_info(callback: CallbackQuery):
     pull_id = int(callback.data.split("_")[1])
+
     pull = await get_team(pull_id)
+
+    users = await get_users_by_team(pull_id)
+    notify = await get_notify_by_team_id(pull_id)
 
     await callback.message.edit_text(
         f"<b>Панель управления пуллом</b>\n\n"
-        f"<b>Название:</b> {pull.name}\n\n"
+        f"<b>Название:</b> {pull.name}\n"
+        f"<b>👤 Пользователей:</b> {len(users)}\n"
+        f"<b>✉️ Уведомлений:</b> {len(notify)}\n\n"
         f"<i>Выберите действие:</i>",
         reply_markup=await bkb.edit_pull(pull_id)
     )

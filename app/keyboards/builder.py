@@ -218,8 +218,6 @@ async def pull_setter(pull_id: int):
 
 
 async def edit_pull(pull_id: int):
-    print("EDIT_PULL CALLED:", pull_id)
-
     kb = InlineKeyboardBuilder()
 
     kb.row(

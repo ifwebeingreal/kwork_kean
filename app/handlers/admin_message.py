@@ -125,8 +125,8 @@ async def get_pull_users(callback: CallbackQuery):
     )
 
 
-@admin.callback_query(F.data.startswith("get_pull_users_"))
-async def get_pull_users(callback: CallbackQuery):
+@admin.callback_query(F.data.startswith("get_pull_notify_"))
+async def get_pull_notify(callback: CallbackQuery):
     pull_id = int(callback.data.split("_")[3])
     pull = await get_team(pull_id)
     notify = await get_notify_by_team_id(pull_id)

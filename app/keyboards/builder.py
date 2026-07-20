@@ -4,6 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app.database.requests.admin.select import get_admins, get_admin_by_tg_id
 from app.database.requests.user.select import get_users
 from app.database.requests.notify.select import get_all_notify
+from app.database.requests.team.select import get_teams
 
 
 async def admin_panel(tg_id: int):
@@ -99,5 +100,39 @@ async def edit_notify(id: int):
     kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_notify_date_{id}"))
     kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_notify_{id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"all_notify"))
+
+    return kb.as_markup()
+
+
+async def pulls_cb():
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить пул", callback_data="add_pull"))
+
+    pulls = await get_teams()
+    for pull in pulls:
+        kb.row(InlineKeyboardButton(text=f"{pull.name}", callback_data=f"pull_{pull.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def pull_setter(pull_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def edit_pull(pull_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="✏️ Изменить название", callback_data=f"edit_pull_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="❌ Удалить пулл", callback_data=f"delete_pull_{pull_id}"))
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
 
     return kb.as_markup()

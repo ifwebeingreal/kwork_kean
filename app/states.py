@@ -27,3 +27,7 @@ class EditNotify(StatesGroup):
 
 class AddTeam(StatesGroup):
     name = State()
+
+
+class EditTeam(StatesGroup):
+    new_name = State()

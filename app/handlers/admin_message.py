@@ -121,7 +121,7 @@ async def get_pull_users(callback: CallbackQuery):
 
     await callback.message.edit_text(
         f"<b>Добавленные пользователи в пулл {pull.name}:</b>",
-        reply_markup=await bkb.users_cb(users)
+        reply_markup=await bkb.users_to_pull_cb(users, pull.id)
     )
 
 
@@ -133,7 +133,7 @@ async def get_pull_notify(callback: CallbackQuery):
 
     await callback.message.edit_text(
         f"<b>Добавленные напоминания в пулл {pull.name}:</b>",
-        reply_markup=await bkb.notify_cb(notify)
+        reply_markup=await bkb.notify_to_pull_cb(notify, pull.id)
     )
 
 

@@ -13,6 +13,7 @@ from app.database.requests.admin.delete import delete_admin
 from app.database.requests.admin.add import set_admin
 from app.database.requests.user.select import get_user
 from app.database.requests.user.update import update_user_is_over, update_user
+from app.database.requests.user_team_member.select import get_users_team_members
 
 from app.states import AddAdmin
 
@@ -24,11 +25,18 @@ admin = Router()
 @admin.message(F.text == "Админ-панель")
 async def admin_panel(message: Message):
     admins = await get_admins()
+    users = await get_users_team_members()
 
     for admin in admins:
         if admin.tg_id == message.from_user.id:
             await message.answer(text=f"<b>Добро пожаловать!</b>\n"
                                       f"Вы успешно авторизовались как администратор!",
+                                 reply_markup=await bkb.admin_panel(message.from_user.id))
+            return
+
+    for user in users:
+        if user.tg_id == message.from_user.id:
+            await message.answer(text=f"<b>Добро пожаловать!</b>\n",
                                  reply_markup=await bkb.admin_panel(message.from_user.id))
             return
 
@@ -106,6 +114,7 @@ async def done_admin(callback: CallbackQuery):
 @admin.callback_query(F.data == "back")
 async def back(callback: CallbackQuery, state: FSMContext):
     admins = await get_admins()
+    users = await get_users_team_members()
 
     for admin in admins:
         if admin.tg_id == callback.from_user.id:
@@ -114,4 +123,10 @@ async def back(callback: CallbackQuery, state: FSMContext):
                                  reply_markup=await bkb.admin_panel(callback.from_user.id))
             await state.clear()
 
+            return
+
+    for user in users:
+        if user.tg_id == callback.from_user.id:
+            await callback.answer(text=f"<b>Добро пожаловать!</b>\n",
+                                 reply_markup=await bkb.admin_panel(callback.from_user.id))
             return

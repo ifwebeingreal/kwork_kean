@@ -47,19 +47,32 @@ async def edit_admin(id: int):
     return kb.as_markup()
 
 
-async def users_cb():
+async def users_cb(users):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data="add_user"))
+    kb.row(
+        InlineKeyboardButton(
+            text="➕ Добавить пользователя",
+            callback_data="add_user"
+        )
+    )
 
-    users = await get_users()
     for user in users:
-        kb.row(InlineKeyboardButton(text=f"{user.username}", callback_data=f"user_{user.id}"))
+        kb.row(
+            InlineKeyboardButton(
+                text=f"{user.username}",
+                callback_data=f"user_{user.id}"
+            )
+        )
 
-    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+    kb.row(
+        InlineKeyboardButton(
+            text="🔙 Назад",
+            callback_data="back"
+        )
+    )
 
     return kb.as_markup()
-
 
 async def edit_user(id: int):
     kb = InlineKeyboardBuilder()

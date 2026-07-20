@@ -43,3 +43,12 @@ async def get_active_reminders():
             )
         )
         return result.all()
+
+
+async def get_users_by_team(team_id: int):
+    async with async_session() as session:
+        users = await session.scalars(
+            select(User)
+            .where(User.team_id == team_id)
+        )
+        return users

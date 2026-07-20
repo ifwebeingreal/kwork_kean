@@ -10,7 +10,7 @@ import app.keyboards.builder as bkb
 from app.database.requests.team.select import get_team
 
 from app.database.requests.user.add import set_user
-from app.database.requests.user.select import get_user
+from app.database.requests.user.select import get_user, get_users, get_users_by_team
 from app.database.requests.user.delete import delete_user
 from app.database.requests.user.update import update_user
 from app.database.requests.admin.select import get_admin_by_tg_id
@@ -23,9 +23,27 @@ user = Router()
 
 @user.callback_query(F.data == "users")
 async def all_users(callback: CallbackQuery):
+    tg_id = callback.from_user.id
+
+    admin = await get_admin_by_tg_id(tg_id)
+    team_member = await get_user_by_tg_id(tg_id)
+
+    if admin:
+        users = await get_users()
+
+    elif team_member:
+        users = await get_users_by_team(team_member.team_id)
+
+    else:
+        await callback.answer(
+            "У вас нет доступа!",
+            show_alert=True
+        )
+        return
+
     await callback.message.edit_text(
         "<b>Добавленные пользователи:</b>",
-        reply_markup=await bkb.users_cb()
+        reply_markup=await bkb.users_cb(users)
     )
 
 

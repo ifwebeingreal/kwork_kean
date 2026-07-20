@@ -1,0 +1,103 @@
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+from app.database.requests.admin.select import get_admins, get_admin_by_tg_id
+from app.database.requests.user.select import get_users
+from app.database.requests.notify.select import get_all_notify
+
+
+async def admin_panel(tg_id: int):
+    kb = InlineKeyboardBuilder()
+
+    admin = await get_admin_by_tg_id(tg_id)
+
+    kb.row(InlineKeyboardButton(text="Пользователи", callback_data="users"))
+    kb.row(InlineKeyboardButton(text="Напоминания", callback_data="all_notify"))
+
+    if admin:
+        kb.row(InlineKeyboardButton(text="Администраторы", callback_data="admins"))
+        kb.row(InlineKeyboardButton(text="Группы", callback_data="pulls"))
+
+    return kb.as_markup()
+
+
+
+async def admins_cb():
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить администратора", callback_data="add_admin"))
+
+    admins = await get_admins()
+    for admin in admins:
+        kb.row(InlineKeyboardButton(text=f"{admin.tg_id}", callback_data=f"admin_{admin.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def edit_admin(id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"deleteadmin_{id}"))
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"admins"))
+
+    return kb.as_markup()
+
+
+async def users_cb():
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data="add_user"))
+
+    users = await get_users()
+    for user in users:
+        kb.row(InlineKeyboardButton(text=f"{user.username}", callback_data=f"user_{user.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def edit_user(id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="✏️ Изменить ник", callback_data=f"edit_username_{id}"))
+    kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_start_date_{id}"))
+    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_user_{id}"))
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"users"))
+
+    return kb.as_markup()
+
+
+async def done(id: int, style: str = "danger"):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="Готово", callback_data=f"done_{id}", style=style))
+
+    return kb.as_markup()
+
+
+async def notify_cb():
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="➕ Добавить напоминание", callback_data="add_notify"))
+
+    all_notify = await get_all_notify()
+    for notify in all_notify:
+        kb.row(InlineKeyboardButton(text=f"{notify.username}", callback_data=f"notify_{notify.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def edit_notify(id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="✏️ Изменить ник", callback_data=f"edit_notify_username_{id}"))
+    kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_notify_date_{id}"))
+    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_notify_{id}"))
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"all_notify"))
+
+    return kb.as_markup()

@@ -274,3 +274,26 @@ async def edit_users_pulls_cb():
 
     return kb.as_markup()
 
+
+async def notify_pulls_cb():
+    kb = InlineKeyboardBuilder()
+
+    pulls = await get_teams()
+    for pull in pulls:
+        kb.row(InlineKeyboardButton(text=f"{pull.name}", callback_data=f"notifypull_{pull.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def edit_notify_pulls_cb():
+    kb = InlineKeyboardBuilder()
+
+    pulls = await get_teams()
+    for pull in pulls:
+        kb.row(InlineKeyboardButton(text=f"{pull.name}", callback_data=f"editnotifypull_{pull.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()

@@ -130,7 +130,7 @@ async def process_notify_date(message: Message, state: FSMContext):
 
             await message.answer(
                 "<b>Выберите пул для напоминания:</b>",
-                reply_markup=await bkb.users_pulls_cb()
+                reply_markup=await bkb.notify_pulls_cb()
             )
 
             await state.set_state(AddNotify.select_team)
@@ -344,7 +344,7 @@ async def edit_notify_pull(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.edit_text(
         "<b>Выберите новый пул:</b>",
-        reply_markup=await bkb.users_pulls_cb()
+        reply_markup=await bkb.edit_notify_pulls_cb()
     )
 
     await state.set_state(EditNotify.new_select_team)
@@ -352,7 +352,7 @@ async def edit_notify_pull(callback: CallbackQuery, state: FSMContext):
 
 @notify.callback_query(
     EditNotify.new_select_team,
-    F.data.startswith("userspull_")
+    F.data.startswith("editnotifypull_")
 )
 async def select_new_notify_team(
         callback: CallbackQuery,

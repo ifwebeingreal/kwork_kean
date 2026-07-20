@@ -77,9 +77,9 @@ async def check_team_user(callback: CallbackQuery):
     )
 
 
-@user_team.callback_query(F.data.startswith("delete_pull_user_"))
+@user_team.callback_query(F.data.startswith("deletepulluser_"))
 async def remove_user(callback: CallbackQuery):
-    user_id = int(callback.data.split("_")[3])
+    user_id = int(callback.data.split("_")[1])
     user = await get_user_by_id(user_id)
     pull_id = user.team_id
     await delete_user_team_member(user_id)

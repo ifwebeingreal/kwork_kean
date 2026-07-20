@@ -156,7 +156,7 @@ async def pull_users(pull_id: int):
 async def team_user_panel(user_id: int, pull_id: int):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_pull_user_{user_id}"))
+    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"deletepulluser_{user_id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"check_pull_users_{pull_id}"))
 
     return kb.as_markup()

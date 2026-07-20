@@ -160,9 +160,13 @@ async def select_team(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
     username = data.get("username")
-    created_at = data.get("created_at")
+    created_at = date.fromisoformat(data.get("created_at"))
 
-    await set_user(username, created_at, team_id=team_id)
+    await set_user(
+        username,
+        created_at,
+        team_id=team_id
+    )
 
     await callback.message.edit_text(
         "<b>Пользователь был успешно добавлен!</b>",

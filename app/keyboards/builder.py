@@ -74,14 +74,44 @@ async def users_cb(users):
 
     return kb.as_markup()
 
-async def edit_user(id: int):
+async def edit_user(id: int, is_admin: bool = False):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="✏️ Изменить ник", callback_data=f"edit_username_{id}"))
-    kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_start_date_{id}"))
-    kb.row(InlineKeyboardButton(text="✏️ Изменить пулл", callback_data=f"edit_user_team_{id}"))
-    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_user_{id}"))
-    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"users"))
+    kb.row(
+        InlineKeyboardButton(
+            text="✏️ Изменить ник",
+            callback_data=f"edit_username_{id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="✏️ Изменить дату",
+            callback_data=f"edit_start_date_{id}"
+        )
+    )
+
+    if is_admin:
+        kb.row(
+            InlineKeyboardButton(
+                text="✏️ Изменить пулл",
+                callback_data=f"edit_user_team_{id}"
+            )
+        )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="❌ Удалить",
+            callback_data=f"delete_user_{id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="🔙 Назад",
+            callback_data="users"
+        )
+    )
 
     return kb.as_markup()
 
@@ -122,14 +152,44 @@ async def notify_cb(notifies):
     return kb.as_markup()
 
 
-async def edit_notify(id: int):
+async def edit_notify(id: int, is_admin: bool = False):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="✏️ Изменить ник", callback_data=f"edit_notify_username_{id}"))
-    kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_notify_date_{id}"))
-    kb.row(InlineKeyboardButton(text="✏️ Изменить пул", callback_data=f"edit_notify_pull_{id}"))
-    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_notify_{id}"))
-    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"all_notify"))
+    kb.row(
+        InlineKeyboardButton(
+            text="✏️ Изменить ник",
+            callback_data=f"edit_notify_username_{id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="✏️ Изменить дату",
+            callback_data=f"edit_notify_date_{id}"
+        )
+    )
+
+    if is_admin:
+        kb.row(
+            InlineKeyboardButton(
+                text="✏️ Изменить пул",
+                callback_data=f"edit_notify_pull_{id}"
+            )
+        )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="❌ Удалить",
+            callback_data=f"delete_notify_{id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="🔙 Назад",
+            callback_data="all_notify"
+        )
+    )
 
     return kb.as_markup()
 

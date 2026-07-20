@@ -272,7 +272,8 @@ async def check_user_info(callback: CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=await bkb.edit_user(user_info.id)
+        reply_markup=await bkb.edit_user(user_info.id,
+                                         is_admin=bool(admin))
     )
 
 
@@ -319,7 +320,8 @@ async def check_new_username(message: Message, state: FSMContext):
 
         await message.answer(
             text,
-            reply_markup=await bkb.edit_user(user_info.id)
+            reply_markup=await bkb.edit_user(user_info.id,
+                                             is_admin=bool(admin))
         )
 
         await state.clear()
@@ -374,7 +376,8 @@ async def check_new_created_at(message: Message, state: FSMContext):
 
             await message.answer(
                 text,
-                reply_markup=await bkb.edit_user(user_info.id)
+                reply_markup=await bkb.edit_user(user_info.id,
+                                                 is_admin=bool(admin))
             )
 
             await state.clear()
@@ -434,7 +437,8 @@ async def check_select_team(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.edit_text(
         text,
-        reply_markup=await bkb.edit_user(user_info.id)
+        reply_markup=await bkb.edit_user(user_info.id,
+                                         is_admin=bool(admin))
     )
 
     await state.clear()

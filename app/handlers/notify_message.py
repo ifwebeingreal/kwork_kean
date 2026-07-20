@@ -125,7 +125,7 @@ async def process_notify_date(message: Message, state: FSMContext):
 
         if admin:
             await state.update_data(
-                notify_date=date_obj
+                notify_date=date_obj.isoformat()
             )
 
             await message.answer(
@@ -168,7 +168,9 @@ async def select_notify_team(
     data = await state.get_data()
 
     username = data.get("username")
-    notify_date = data.get("notify_date")
+    notify_date = datetime.fromisoformat(
+        data.get("notify_date")
+    )
 
     await set_notify(
         username,
@@ -211,7 +213,8 @@ async def check_notify(callback: CallbackQuery):
 
     await callback.message.edit_text(
         text,
-        reply_markup=await bkb.edit_notify(notify_id)
+        reply_markup=await bkb.edit_notify(notify_id,
+                                           is_admin=bool(admin))
     )
 
 
@@ -244,13 +247,15 @@ async def check_new_username(message: Message, state: FSMContext):
         )
 
         notify_info = await get_notify(notify_id)
+        admin = await get_admin_by_tg_id(message.from_user.id)
 
         await message.answer(
             await get_notify_text(
                 notify_info,
                 message.from_user.id
             ),
-            reply_markup=await bkb.edit_notify(notify_id)
+            reply_markup=await bkb.edit_notify(notify_id,
+                                               is_admin=bool(admin))
         )
 
         await state.clear()
@@ -307,6 +312,8 @@ async def check_new_notify_date(message: Message, state: FSMContext):
             date_obj
         )
 
+        admin = await get_admin_by_tg_id(message.from_user.id)
+
         notify_info = await get_notify(notify_id)
 
         await message.answer(
@@ -314,7 +321,8 @@ async def check_new_notify_date(message: Message, state: FSMContext):
                 notify_info,
                 message.from_user.id
             ),
-            reply_markup=await bkb.edit_notify(notify_id)
+            reply_markup=await bkb.edit_notify(notify_id,
+                                               is_admin=bool(admin))
         )
 
         await state.clear()
@@ -363,13 +371,15 @@ async def select_new_notify_team(
 
     # получаем уже обновленное напоминание
     notify_info = await get_notify(notify_id)
+    admin = await get_admin_by_tg_id(team_id)
 
     await callback.message.edit_text(
         await get_notify_text(
             notify_info,
             callback.from_user.id
         ),
-        reply_markup=await bkb.edit_notify(notify_id)
+        reply_markup=await bkb.edit_notify(notify_id,
+                                           is_admin=bool(admin))
     )
 
     await state.clear()

@@ -63,7 +63,7 @@ async def main():
         bot=bot
     )
 
-    # scheduler.add_job(fast_notify, 'interval', seconds=5, kwargs={'bot': bot})
+    scheduler.add_job(fast_notify, 'interval', seconds=5, kwargs={'bot': bot})
 
     scheduler.start()
 

@@ -15,39 +15,75 @@ from app.database.requests.user_team_member.select import get_users_team_members
 
 
 async def fast_notify(bot: Bot):
+    logger.info("🚀 FAST NOTIFY START")
+
     expired_notify = await get_expired_notify()
     admins = await get_admins()
     team_members = await get_users_team_members()
 
-    admin_ids = {admin.tg_id for admin in admins}
+    logger.info(
+        f"📌 Expired notify found: {len(expired_notify)}"
+    )
+
+    logger.info(
+        f"👮 Admins found: {len(admins)}"
+    )
+
+    logger.info(
+        f"👥 Team members found: {len(team_members)}"
+    )
 
     for find_notify in expired_notify:
+
+        logger.info(
+            f"""
+            🔔 Processing notify:
+            id={find_notify.id}
+            username={find_notify.username}
+            notify_date={find_notify.notify_date}
+            team_id={find_notify.team_id}
+            """
+        )
+
         sent_ids = set()
 
         try:
             team = await get_team(find_notify.team_id)
 
-            pool_name = team.name if team else "Без пула"
+            if team:
+                pool_name = team.name
+                logger.info(
+                    f"📌 Team found: {team.id} {team.name}"
+                )
+            else:
+                pool_name = "Без пула"
+                logger.warning(
+                    f"⚠️ Team not found for team_id={find_notify.team_id}"
+                )
 
-            # Сообщение для админов
+
             admin_text = (
                 f"⏰ Триальный период окончен\n\n"
                 f"👤 Пользователь: @{find_notify.username}\n"
                 f"📌 Пулл: {pool_name}"
             )
 
-            # Сообщение для участников
             member_text = (
                 f"⏰ Триальный период окончен\n\n"
                 f"👤 Пользователь: @{find_notify.username}"
             )
 
 
-            # ----------------------
-            # Отправляем администраторам
-            # ----------------------
+            logger.info(
+                f"👮 Sending message to admins..."
+            )
+
             for admin in admins:
                 try:
+                    logger.info(
+                        f"➡️ Send to admin {admin.tg_id}"
+                    )
+
                     await bot.send_message(
                         chat_id=admin.tg_id,
                         text=admin_text
@@ -55,26 +91,49 @@ async def fast_notify(bot: Bot):
 
                     sent_ids.add(admin.tg_id)
 
+                    logger.success(
+                        f"✅ Sent to admin {admin.tg_id}"
+                    )
+
                 except Exception as e:
                     logger.error(
-                        f"Failed send expired notify "
-                        f"to admin {admin.tg_id}: {e}"
+                        f"❌ Failed admin {admin.tg_id}: {e}"
                     )
 
 
-            # ----------------------
-            # Отправляем участникам своего пула
-            # ----------------------
+            logger.info(
+                f"👥 Sending message to team members..."
+            )
+
             for member in team_members:
 
+                logger.info(
+                    f"Checking member "
+                    f"id={member.tg_id}, "
+                    f"team_id={member.team_id}"
+                )
+
                 if member.team_id != find_notify.team_id:
+                    logger.info(
+                        f"⏭ Skip member {member.tg_id}: "
+                        f"another team"
+                    )
                     continue
 
-                # чтобы не было дублей
+
                 if member.tg_id in sent_ids:
+                    logger.info(
+                        f"⏭ Skip member {member.tg_id}: "
+                        f"already received"
+                    )
                     continue
+
 
                 try:
+                    logger.info(
+                        f"➡️ Send to member {member.tg_id}"
+                    )
+
                     await bot.send_message(
                         chat_id=member.tg_id,
                         text=member_text
@@ -82,21 +141,37 @@ async def fast_notify(bot: Bot):
 
                     sent_ids.add(member.tg_id)
 
+                    logger.success(
+                        f"✅ Sent to member {member.tg_id}"
+                    )
+
                 except Exception as e:
                     logger.error(
-                        f"Failed send expired notify "
-                        f"to member {member.tg_id}: {e}"
+                        f"❌ Failed member {member.tg_id}: {e}"
                     )
 
 
         except Exception as e:
-            logger.error(
-                f"Error processing notify {find_notify.id}: {e}"
+            logger.exception(
+                f"🔥 Error processing notify "
+                f"id={find_notify.id}: {e}"
             )
+
             continue
 
 
+        logger.info(
+            f"🗑 Delete notify {find_notify.id}"
+        )
+
         await delete_notify(find_notify.id)
+
+        logger.success(
+            f"✅ Notify {find_notify.id} completed"
+        )
+
+
+    logger.info("🏁 FAST NOTIFY END")
 
 
 async def start_reminders(bot: Bot):

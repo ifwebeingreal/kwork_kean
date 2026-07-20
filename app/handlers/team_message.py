@@ -106,3 +106,14 @@ async def check_new_name(message: Message, state: FSMContext):
             "<b>Название пула должно быть до 100 символов!</b>",
             reply_markup=ikb.admin_cancel
         )
+
+
+@team.callback_query(F.data.startswith("delete_pull_"))
+async def remove_pull(callback: CallbackQuery):
+    pull_id = int(callback.data.split("_")[2])
+    await delete_team(pull_id)
+
+    await callback.message.edit_text(
+        "<b>Пулл был успешно удален!</b>",
+        reply_markup=await bkb.pulls_cb()
+    )

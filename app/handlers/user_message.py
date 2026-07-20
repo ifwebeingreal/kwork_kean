@@ -64,9 +64,10 @@ async def today_create_user(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
 
     username = data.get("username")
-    today = date.today()
     tg_id = callback.from_user.id
-    await state.update_data(created_at=today)
+    today = date.today()
+    today_str = today.isoformat()
+    await state.update_data(created_at=today_str)
 
     team_member = await get_user_by_tg_id(tg_id)
     admin = await get_admin_by_tg_id(tg_id)
@@ -92,44 +93,59 @@ async def today_create_user(callback: CallbackQuery, state: FSMContext):
 
 @user.message(AddUser.created_at)
 async def check_created_at(message: Message, state: FSMContext):
-    if message.text:
-        try:
-            created_at = date.fromisoformat(message.text)
-            await state.update_data(created_at=created_at)
+    if not message.text:
+        await message.answer(
+            f"<b>Укажите дату начала работ в формате ГГГГ-ММ-ДД:</b>\n\n"
+            f"Пример: <code>{date.today()}</code>",
+            reply_markup=ikb.date_panel
+        )
+        return
 
-            data = await state.get_data()
+    try:
+        created_at = date.fromisoformat(message.text)
 
-            username = data.get("username")
-            tg_id = message.from_user.id
-            team_member = await get_user_by_tg_id(tg_id)
-            admin = await get_admin_by_tg_id(tg_id)
+        # В FSM сохраняем строку, так как Redis хранит JSON
+        await state.update_data(
+            created_at=created_at.isoformat()
+        )
 
-            if admin:
-                await message.answer(
-                    "<b>Выберите пул для рассылки:</b>",
-                    reply_markup=await bkb.users_pulls_cb()
-                )
+        data = await state.get_data()
 
-                await state.set_state(AddUser.select_team)
+        username = data.get("username")
+        tg_id = message.from_user.id
 
-            elif team_member:
-                await set_user(username, created_at, team_id=team_member.team_id)
+        team_member = await get_user_by_tg_id(tg_id)
+        admin = await get_admin_by_tg_id(tg_id)
 
-                await message.answer(
-                    "<b>Пользователь был успешно добавлен!</b>",
-                    reply_markup=await bkb.users_cb()
-                )
-
-                await state.clear()
-
-        except ValueError:
+        if admin:
             await message.answer(
-                f"<b>Укажите дату начала работ в формате ГГГГ-ММ-ДД:</b>\n\n"
-                f"Пример: <code>{date.today()}</code>",
-                reply_markup=ikb.date_panel
+                "<b>Выберите пул для рассылки:</b>",
+                reply_markup=await bkb.users_pulls_cb()
             )
 
-    else:
+            await state.set_state(AddUser.select_team)
+
+        elif team_member:
+            await set_user(
+                username,
+                created_at,
+                team_id=team_member.team_id
+            )
+
+            await message.answer(
+                "<b>Пользователь был успешно добавлен!</b>",
+                reply_markup=await bkb.users_cb()
+            )
+
+            await state.clear()
+
+        else:
+            await message.answer(
+                "<b>У вас нет прав для добавления пользователя.</b>"
+            )
+            await state.clear()
+
+    except ValueError:
         await message.answer(
             f"<b>Укажите дату начала работ в формате ГГГГ-ММ-ДД:</b>\n\n"
             f"Пример: <code>{date.today()}</code>",

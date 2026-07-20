@@ -67,7 +67,7 @@ async def pull_info(callback: CallbackQuery):
     await callback.message.edit_text(
         f"<b>Панель управления пуллом</b>\n\n"
         f"<b>Название:</b> {pull.name}\n"
-        f"<b>👤 Пользователей:</b> {len(users)}\n"
+        f"<b>🧑‍💻 Клиенты:</b> {len(users)}\n"
         f"<b>✉️ Уведомлений:</b> {len(notify)}\n\n"
         f"<i>Выберите действие:</i>",
         reply_markup=await bkb.edit_pull(pull_id)

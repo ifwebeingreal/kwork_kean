@@ -13,8 +13,14 @@ async def get_user(id: int):
 
 async def get_users():
     async with async_session() as session:
-        users = await session.scalars(select(User))
-        return users
+        users = await session.scalars(
+            select(User)
+            .order_by(
+                User.team_id.asc().nulls_last()
+            )
+        )
+
+        return users.all()
 
 
 async def get_users_count():

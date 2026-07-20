@@ -266,8 +266,6 @@ async def edit_pull(pull_id: int):
 
     markup = kb.as_markup()
 
-    print(markup)
-
     return markup
 
 async def pull_users(pull_id: int):

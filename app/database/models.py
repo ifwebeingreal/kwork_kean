@@ -28,6 +28,10 @@ class User(Base):
     reminder_started_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     reminder_count: Mapped[int] = mapped_column(Integer, default=0)
     is_over: Mapped[bool] = mapped_column(Boolean, default=False)
+    team_id: Mapped[int] = mapped_column(
+        ForeignKey("teams.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
 
 class Admin(Base):
@@ -43,6 +47,10 @@ class Notify(Base):
     id: Mapped[intpk]
     username: Mapped[str] = mapped_column(String)
     notify_date: Mapped[datetime] = mapped_column(DateTime)
+    team_id: Mapped[int] = mapped_column(
+        ForeignKey("teams.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
 
 class Team(Base):

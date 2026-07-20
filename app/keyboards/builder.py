@@ -66,6 +66,7 @@ async def edit_user(id: int):
 
     kb.row(InlineKeyboardButton(text="✏️ Изменить ник", callback_data=f"edit_username_{id}"))
     kb.row(InlineKeyboardButton(text="✏️ Изменить дату", callback_data=f"edit_start_date_{id}"))
+    kb.row(InlineKeyboardButton(text="✏️ Изменить пулл", callback_data=f"edit_user_team_{id}"))
     kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_user_{id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"users"))
 
@@ -160,3 +161,28 @@ async def team_user_panel(user_id: int, pull_id: int):
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"check_pull_users_{pull_id}"))
 
     return kb.as_markup()
+
+
+async def users_pulls_cb():
+    kb = InlineKeyboardBuilder()
+
+    pulls = await get_teams()
+    for pull in pulls:
+        kb.row(InlineKeyboardButton(text=f"{pull.name}", callback_data=f"userspull_{pull.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+
+
+async def edit_users_pulls_cb():
+    kb = InlineKeyboardBuilder()
+
+    pulls = await get_teams()
+    for pull in pulls:
+        kb.row(InlineKeyboardButton(text=f"{pull.name}", callback_data=f"edituserspull_{pull.id}"))
+
+    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+
+    return kb.as_markup()
+

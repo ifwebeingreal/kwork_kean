@@ -8,11 +8,13 @@ class AddAdmin(StatesGroup):
 class AddUser(StatesGroup):
     username = State()
     created_at = State()
+    select_team = State()
 
 
 class EditUser(StatesGroup):
     new_username = State()
     new_created_at = State()
+    new_select_team = State()
 
 
 class AddNotify(StatesGroup):

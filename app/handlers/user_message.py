@@ -7,11 +7,14 @@ from aiogram.types import Message, CallbackQuery
 import app.keyboards.reply as rkb
 import app.keyboards.inline as ikb
 import app.keyboards.builder as bkb
+from app.database.requests.team.select import get_team
 
 from app.database.requests.user.add import set_user
 from app.database.requests.user.select import get_user
 from app.database.requests.user.delete import delete_user
 from app.database.requests.user.update import update_user
+from app.database.requests.admin.select import get_admin_by_tg_id
+from app.database.requests.user_team_member.select import get_user_by_tg_id
 
 from app.states import AddUser, EditUser
 
@@ -62,15 +65,29 @@ async def today_create_user(callback: CallbackQuery, state: FSMContext):
 
     username = data.get("username")
     today = date.today()
+    tg_id = callback.from_user.id
+    await state.update_data(created_at=today)
 
-    await set_user(username, today)
+    team_member = await get_user_by_tg_id(tg_id)
+    admin = await get_admin_by_tg_id(tg_id)
 
-    await callback.message.edit_text(
-        "<b>Пользователь был успешно добавлен!</b>",
-        reply_markup=await bkb.users_cb()
-    )
+    if admin:
+        await callback.message.edit_text(
+            "<b>Выберите пул для рассылки:</b>",
+            reply_markup=await bkb.users_pulls_cb()
+        )
 
-    await state.clear()
+        await state.set_state(AddUser.select_team)
+
+    elif team_member:
+        await set_user(username, today, team_id=team_member.team_id)
+
+        await callback.message.edit_text(
+            "<b>Пользователь был успешно добавлен!</b>",
+            reply_markup=await bkb.users_cb()
+        )
+
+        await state.clear()
 
 
 @user.message(AddUser.created_at)
@@ -78,19 +95,33 @@ async def check_created_at(message: Message, state: FSMContext):
     if message.text:
         try:
             created_at = date.fromisoformat(message.text)
+            await state.update_data(created_at=created_at)
 
             data = await state.get_data()
 
             username = data.get("username")
+            tg_id = message.from_user.id
+            team_member = await get_user_by_tg_id(tg_id)
+            admin = await get_admin_by_tg_id(tg_id)
 
-            await set_user(username, created_at)
+            if admin:
+                await message.answer(
+                    "<b>Выберите пул для рассылки:</b>",
+                    reply_markup=await bkb.users_pulls_cb()
+                )
 
-            await message.answer(
-                "<b>Пользователь был успешно добавлен!</b>",
-                reply_markup=await bkb.users_cb()
-            )
+                await state.set_state(AddUser.select_team)
 
-            await state.clear()
+            elif team_member:
+                await set_user(username, created_at, team_id=team_member.team_id)
+
+                await message.answer(
+                    "<b>Пользователь был успешно добавлен!</b>",
+                    reply_markup=await bkb.users_cb()
+                )
+
+                await state.clear()
+
         except ValueError:
             await message.answer(
                 f"<b>Укажите дату начала работ в формате ГГГГ-ММ-ДД:</b>\n\n"
@@ -106,17 +137,48 @@ async def check_created_at(message: Message, state: FSMContext):
         )
 
 
+@user.callback_query(F.data.startswith("userspull_"))
+async def select_team(callback: CallbackQuery, state: FSMContext):
+    team_id = int(callback.data.split("_")[1])
+
+    data = await state.get_data()
+
+    username = data.get("username")
+    created_at = data.get("created_at")
+
+    await set_user(username, created_at, team_id=team_id)
+
+    await callback.message.edit_text(
+        "<b>Пользователь был успешно добавлен!</b>",
+        reply_markup=await bkb.users_cb()
+    )
+
+    await state.clear()
+
+
 @user.callback_query(F.data.startswith("user_"))
 async def check_user_info(callback: CallbackQuery):
     user_id = int(callback.data.split("_")[1])
-    user_info = await get_user(user_id)
 
-    await callback.message.edit_text(
+    user_info = await get_user(user_id)
+    team = await get_team(user_info.team_id)
+
+    admin = await get_admin_by_tg_id(callback.from_user.id)
+
+    text = (
         f"<b>Панель управления пользователем №{user_info.id}</b>\n\n"
         f"<b>Username:</b> {user_info.username}\n"
         f"<b>Дата начала:</b> {user_info.created_at}\n"
-        f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n\n"
-        f"<i>Выберите действие:</i>",
+        f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n"
+    )
+
+    if admin:
+        text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+
+    text += "\n<i>Выберите действие:</i>"
+
+    await callback.message.edit_text(
+        text,
         reply_markup=await bkb.edit_user(user_info.id)
     )
 
@@ -146,13 +208,24 @@ async def check_new_username(message: Message, state: FSMContext):
 
         await update_user(user_id, username=username)
         user_info = await get_user(user_id)
+        team = await get_team(user_info.team_id)
 
-        await message.answer(
+        admin = await get_admin_by_tg_id(message.from_user.id)
+
+        text = (
             f"<b>Панель управления пользователем №{user_info.id}</b>\n\n"
             f"<b>Username:</b> {user_info.username}\n"
             f"<b>Дата начала:</b> {user_info.created_at}\n"
-            f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n\n"
-            f"<i>Выберите действие:</i>",
+            f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n"
+        )
+
+        if admin:
+            text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+
+        text += "\n<i>Выберите действие:</i>"
+
+        await message.answer(
+            text,
             reply_markup=await bkb.edit_user(user_info.id)
         )
 
@@ -190,13 +263,24 @@ async def check_new_created_at(message: Message, state: FSMContext):
 
             await update_user(user_id, created_at=created_at)
             user_info = await get_user(user_id)
+            team = await get_team(user_info.team_id)
 
-            await message.answer(
+            admin = await get_admin_by_tg_id(message.from_user.id)
+
+            text = (
                 f"<b>Панель управления пользователем №{user_info.id}</b>\n\n"
                 f"<b>Username:</b> {user_info.username}\n"
                 f"<b>Дата начала:</b> {user_info.created_at}\n"
-                f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n\n"
-                f"<i>Выберите действие:</i>",
+                f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n"
+            )
+
+            if admin:
+                text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+
+            text += "\n<i>Выберите действие:</i>"
+
+            await message.answer(
+                text,
                 reply_markup=await bkb.edit_user(user_info.id)
             )
 
@@ -214,6 +298,53 @@ async def check_new_created_at(message: Message, state: FSMContext):
             f"Пример: <code>{date.today()}</code>",
             reply_markup=ikb.admin_cancel
         )
+
+
+@user.callback_query(F.data.startswith("edit_user_team_"))
+async def edit_user_team(callback: CallbackQuery, state: FSMContext):
+    user_id = int(callback.data.split("_")[3])
+
+    await callback.message.edit_text(
+        "<b>Выберите новый пулл для пользователя:</b>",
+        reply_markup=await bkb.edit_users_pulls_cb()
+    )
+
+    await state.set_state(EditUser.new_select_team)
+    await state.update_data(user_id=user_id)
+
+
+@user.callback_query(F.data.startswith("edituserspull_"), EditUser.new_select_team)
+async def check_select_team(callback: CallbackQuery, state: FSMContext):
+    team_id = int(callback.data.split("_")[1])
+
+    data = await state.get_data()
+
+    user_id = data.get("user_id")
+
+    await update_user(user_id, team_id=team_id)
+    user_info = await get_user(user_id)
+    team = await get_team(user_info.team_id)
+
+    admin = await get_admin_by_tg_id(callback.from_user.id)
+
+    text = (
+        f"<b>Панель управления пользователем №{user_info.id}</b>\n\n"
+        f"<b>Username:</b> {user_info.username}\n"
+        f"<b>Дата начала:</b> {user_info.created_at}\n"
+        f"<b>Дата напоминания:</b> {user_info.created_at + timedelta(days=7)}\n"
+    )
+
+    if admin:
+        text += f"<b>Пулл:</b> {team.name if team.name else '-'}\n"
+
+    text += "\n<i>Выберите действие:</i>"
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=await bkb.edit_user(user_info.id)
+    )
+
+    await state.clear()
 
 
 @user.callback_query(F.data.startswith("delete_user_"))

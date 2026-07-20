@@ -218,17 +218,57 @@ async def pull_setter(pull_id: int):
 
 
 async def edit_pull(pull_id: int):
+    print("EDIT_PULL CALLED:", pull_id)
+
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="👤 Пользователи", callback_data=f"check_pull_users_{pull_id}"))
-    kb.row(InlineKeyboardButton(text="🧑‍💻 Клиенты", callback_data=f"get_pull_users_{pull_id}"))
-    kb.row(InlineKeyboardButton(text="✉️ Уведомления", callback_data=f"get_pull_notify_{pull_id}"))
-    kb.row(InlineKeyboardButton(text="✏️ Изменить название", callback_data=f"edit_pull_{pull_id}"))
-    kb.row(InlineKeyboardButton(text="❌ Удалить пулл", callback_data=f"delete_pull_{pull_id}"))
-    kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data="back"))
+    kb.row(
+        InlineKeyboardButton(
+            text="👤 Пользователи",
+            callback_data=f"check_pull_users_{pull_id}"
+        )
+    )
 
-    return kb.as_markup()
+    kb.row(
+        InlineKeyboardButton(
+            text="🧑‍💻 Клиенты",
+            callback_data=f"get_pull_users_{pull_id}"
+        )
+    )
 
+    kb.row(
+        InlineKeyboardButton(
+            text="✉️ Уведомления",
+            callback_data=f"get_pull_notify_{pull_id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="✏️ Изменить название",
+            callback_data=f"edit_pull_{pull_id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="❌ Удалить пулл",
+            callback_data=f"delete_pull_{pull_id}"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="🔙 Назад",
+            callback_data="back"
+        )
+    )
+
+    markup = kb.as_markup()
+
+    print(markup)
+
+    return markup
 
 async def pull_users(pull_id: int):
     kb = InlineKeyboardBuilder()

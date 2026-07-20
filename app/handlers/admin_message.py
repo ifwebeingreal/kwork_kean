@@ -127,6 +127,6 @@ async def back(callback: CallbackQuery, state: FSMContext):
 
     for user in users:
         if user.tg_id == callback.from_user.id:
-            await callback.answer(text=f"<b>Добро пожаловать!</b>\n",
+            await callback.message.edit_text(text=f"<b>Добро пожаловать!</b>\n",
                                  reply_markup=await bkb.admin_panel(callback.from_user.id))
             return

@@ -8,7 +8,7 @@ def setup_scheduler(start_reminders, process_reminders, bot):
         start_reminders,
         trigger="cron",
         hour=9,  # 9
-        minute=0,
+        minute=8,
         args=[bot]
     )
 

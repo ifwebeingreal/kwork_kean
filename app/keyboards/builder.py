@@ -50,13 +50,6 @@ async def edit_admin(id: int):
 async def users_cb(users):
     kb = InlineKeyboardBuilder()
 
-    kb.row(
-        InlineKeyboardButton(
-            text="➕ Добавить пользователя",
-            callback_data="add_user"
-        )
-    )
-
     for user in users:
         kb.row(
             InlineKeyboardButton(
@@ -64,6 +57,13 @@ async def users_cb(users):
                 callback_data=f"user_{user.id}"
             )
         )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="➕ Добавить пользователя",
+            callback_data="add_user"
+        )
+    )
 
     kb.row(
         InlineKeyboardButton(
@@ -78,13 +78,6 @@ async def users_cb(users):
 async def users_to_pull_cb(users, pull_id: int):
     kb = InlineKeyboardBuilder()
 
-    kb.row(
-        InlineKeyboardButton(
-            text="➕ Добавить пользователя",
-            callback_data="add_user"
-        )
-    )
-
     for user in users:
         kb.row(
             InlineKeyboardButton(
@@ -92,6 +85,13 @@ async def users_to_pull_cb(users, pull_id: int):
                 callback_data=f"user_{user.id}"
             )
         )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="➕ Добавить пользователя",
+            callback_data="add_user"
+        )
+    )
 
     kb.row(
         InlineKeyboardButton(
@@ -156,13 +156,6 @@ async def done(id: int, style: str = "danger"):
 async def notify_cb(notifies):
     kb = InlineKeyboardBuilder()
 
-    kb.row(
-        InlineKeyboardButton(
-            text="➕ Добавить напоминание",
-            callback_data="add_notify"
-        )
-    )
-
     for notify in notifies:
         kb.row(
             InlineKeyboardButton(
@@ -170,6 +163,13 @@ async def notify_cb(notifies):
                 callback_data=f"notify_{notify.id}"
             )
         )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="➕ Добавить напоминание",
+            callback_data="add_notify"
+        )
+    )
 
     kb.row(
         InlineKeyboardButton(
@@ -184,13 +184,6 @@ async def notify_cb(notifies):
 async def notify_to_pull_cb(notifies, pull_id: int):
     kb = InlineKeyboardBuilder()
 
-    kb.row(
-        InlineKeyboardButton(
-            text="➕ Добавить напоминание",
-            callback_data="add_notify"
-        )
-    )
-
     for notify in notifies:
         kb.row(
             InlineKeyboardButton(
@@ -198,6 +191,13 @@ async def notify_to_pull_cb(notifies, pull_id: int):
                 callback_data=f"notify_{notify.id}"
             )
         )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="➕ Добавить напоминание",
+            callback_data="add_notify"
+        )
+    )
 
     kb.row(
         InlineKeyboardButton(
@@ -326,12 +326,11 @@ async def edit_pull(pull_id: int):
 async def pull_users(pull_id: int):
     kb = InlineKeyboardBuilder()
 
-    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
-
     users = await get_users_by_team(pull_id)
     for user in users:
         kb.row(InlineKeyboardButton(text=f"{user.tg_id}", callback_data=f"pulluser_{user.id}"))
 
+    kb.row(InlineKeyboardButton(text="➕ Добавить пользователя", callback_data=f"add_pull_user_{pull_id}"))
     kb.row(InlineKeyboardButton(text="🔙 Назад", callback_data=f"pull_{pull_id}"))
 
     return kb.as_markup()

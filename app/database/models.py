@@ -47,6 +47,7 @@ class Notify(Base):
     id: Mapped[intpk]
     username: Mapped[str] = mapped_column(String)
     notify_date: Mapped[datetime] = mapped_column(DateTime)
+    is_send: Mapped[bool] = mapped_column(Boolean, default=False, server_default="False")
     team_id: Mapped[int] = mapped_column(
         ForeignKey("teams.id", ondelete="CASCADE"),
         nullable=False

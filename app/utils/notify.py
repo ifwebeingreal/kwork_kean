@@ -24,17 +24,14 @@ async def fast_notify(bot: Bot):
     logger.info(
         f"📌 Expired notify found: {len(expired_notify)}"
     )
-
     logger.info(
         f"👮 Admins found: {len(admins)}"
     )
-
     logger.info(
         f"👥 Team members found: {len(team_members)}"
     )
 
     for find_notify in expired_notify:
-
         logger.info(
             f"""
             🔔 Processing notify:
@@ -61,7 +58,6 @@ async def fast_notify(bot: Bot):
                     f"⚠️ Team not found for team_id={find_notify.team_id}"
                 )
 
-
             admin_text = (
                 f"⏰ Триальный период окончен\n\n"
                 f"👤 Пользователь: @{find_notify.username}\n"
@@ -72,7 +68,6 @@ async def fast_notify(bot: Bot):
                 f"⏰ Триальный период окончен\n\n"
                 f"👤 Пользователь: @{find_notify.username}"
             )
-
 
             logger.info(
                 f"👮 Sending message to admins..."
@@ -86,7 +81,8 @@ async def fast_notify(bot: Bot):
 
                     await bot.send_message(
                         chat_id=admin.tg_id,
-                        text=admin_text
+                        text=admin_text,
+                        reply_markup=await bkb.notify_send_panel(notify_id=find_notify.id)
                     )
 
                     sent_ids.add(admin.tg_id)
@@ -100,13 +96,11 @@ async def fast_notify(bot: Bot):
                         f"❌ Failed admin {admin.tg_id}: {e}"
                     )
 
-
             logger.info(
                 f"👥 Sending message to team members..."
             )
 
             for member in team_members:
-
                 logger.info(
                     f"Checking member "
                     f"id={member.tg_id}, "
@@ -120,14 +114,12 @@ async def fast_notify(bot: Bot):
                     )
                     continue
 
-
                 if member.tg_id in sent_ids:
                     logger.info(
                         f"⏭ Skip member {member.tg_id}: "
                         f"already received"
                     )
                     continue
-
 
                 try:
                     logger.info(
@@ -136,7 +128,8 @@ async def fast_notify(bot: Bot):
 
                     await bot.send_message(
                         chat_id=member.tg_id,
-                        text=member_text
+                        text=member_text,
+                        reply_markup=await bkb.notify_send_panel(notify_id=find_notify.id)
                     )
 
                     sent_ids.add(member.tg_id)
@@ -159,7 +152,6 @@ async def fast_notify(bot: Bot):
 
             continue
 
-
         logger.info(
             f"🗑 Delete notify {find_notify.id}"
         )
@@ -169,7 +161,6 @@ async def fast_notify(bot: Bot):
         logger.success(
             f"✅ Notify {find_notify.id} completed"
         )
-
 
     logger.info("🏁 FAST NOTIFY END")
 
@@ -251,7 +242,6 @@ async def start_reminders(bot: Bot):
                         f"{admin.tg_id}: {e}"
                     )
 
-
             # ---------------------------------
             # Отправка участникам своего пула
             # ---------------------------------
@@ -279,7 +269,6 @@ async def start_reminders(bot: Bot):
                         f"Failed send reminder to member "
                         f"{member.tg_id}: {e}"
                     )
-
 
             await update_user(
                 user_id=user.id,

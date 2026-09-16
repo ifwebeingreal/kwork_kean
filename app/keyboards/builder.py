@@ -251,6 +251,15 @@ async def edit_notify(id: int, is_admin: bool = False):
     return kb.as_markup()
 
 
+async def notify_send_panel(notify_id: int):
+    kb = InlineKeyboardBuilder()
+
+    kb.row(InlineKeyboardButton(text="✅ Перенести", callback_data=f"confirm_notify_{notify_id}"))
+    kb.row(InlineKeyboardButton(text="❌ Удалить", callback_data=f"delete_notify_{notify_id}"))
+
+    return kb.as_markup()
+
+
 async def pulls_cb():
     kb = InlineKeyboardBuilder()
 

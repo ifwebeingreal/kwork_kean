@@ -27,3 +27,11 @@ async def update_notify_team_id(user_id: int, team_id: int):
             update(Notify).where(Notify.id == user_id).values(team_id=team_id)
         )
         await session.commit()
+
+
+async def update_notify_is_send(notify_id: int, is_send: bool):
+    async with async_session() as session:
+        await session.execute(
+            update(Notify).where(Notify.id == notify_id).values(is_send=is_send)
+        )
+        await session.commit()

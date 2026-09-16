@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 async def get_all_notify():
     async with async_session() as session:
-        notify = await session.scalars(select(Notify))
+        notify = await session.scalars(select(Notify).where(Notify.is_send == False))
         return notify
 
 
@@ -24,7 +24,10 @@ async def get_notify(id: int):
 async def get_notify_by_team_id(team_id: int):
     async with async_session() as session:
         notify = await session.scalars(
-            select(Notify).where(Notify.team_id == team_id)
+            select(Notify).where(
+                Notify.team_id == team_id,
+                Notify.is_send == False,
+            )
         )
         return notify.all()
 
@@ -38,6 +41,9 @@ async def get_expired_notify():
 
     async with async_session() as session:
         result = await session.scalars(
-            select(Notify).where(Notify.notify_date <= now_msk)
+            select(Notify).where(
+                Notify.notify_date <= now_msk,
+                Notify.is_send == False,
+            )
         )
         return result.all()

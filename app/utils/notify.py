@@ -7,6 +7,7 @@ from app.database.requests.user.select import get_users_for_start
 from app.database.requests.user.update import update_user, update_user_is_over
 from app.database.requests.admin.select import get_admins
 from app.database.requests.notify.select import get_expired_notify
+from app.database.requests.notify.update import update_notify_is_send
 
 import app.keyboards.builder as bkb
 from loguru import logger
@@ -157,6 +158,10 @@ async def fast_notify(bot: Bot):
         )
 
         # await delete_notify(find_notify.id)
+        await update_notify_is_send(
+            notify_id=find_notify.id,
+            is_send=True
+        )
 
         logger.success(
             f"✅ Notify {find_notify.id} completed"

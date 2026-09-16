@@ -12,12 +12,15 @@ from app.database.requests.admin.select import get_admin_by_tg_id
 from app.database.requests.notify.add import set_notify
 from app.database.requests.notify.select import get_notify, get_notify_by_team_id, get_all_notify
 from app.database.requests.notify.delete import delete_notify
-from app.database.requests.notify.update import update_notify_date, update_notify_username, update_notify_team_id
+from app.database.requests.notify.update import (update_notify_date,
+                                                 update_notify_username,
+                                                 update_notify_team_id)
 from app.database.requests.team.select import get_team
 from app.database.requests.user_team_member.select import get_user_by_tg_id
+from app.database.requests.user.add import set_user
 
 from app.states import AddNotify, EditNotify
-
+from app.utils.nice_send import edit_or_answer
 
 notify = Router()
 
@@ -408,9 +411,48 @@ async def remove_notify(callback: CallbackQuery):
         )
         return
 
-    await callback.message.edit_text(
-        "<b>Напоминание было успешно удалено!</b>\n",
-        reply_markup=await bkb.notify_cb(notifies)
+    try:
+        await callback.message.edit_text(
+            "<b>Напоминание было успешно удалено!</b>\n",
+            reply_markup=await bkb.notify_cb(notifies)
+        )
+    except Exception as e:
+        print(e)
+        await callback.answer()
+        await callback.message.delete()
+
+        await callback.message.answer(
+            "<b>Напоминание было успешно удалено!</b>\n",
+            reply_markup=await bkb.notify_cb(notifies)
+        )
+
+
+@notify.callback_query(F.data.startswith("confirm_notify_"))
+async def confirm_notify(callback: CallbackQuery):
+    await callback.answer()
+
+    notify_id = int(callback.data.rsplit("_", 1)[1])
+    notify_info = await get_notify(notify_id)
+
+    try:
+        await set_user(
+            username=notify_info.username,
+            created_at=notify_info.notify_date,
+            team_id=notify_info.team_id,
+        )
+    except Exception as e:
+        await edit_or_answer(
+            callback,
+            f"<b>Ошибка при переносе: {e}</b>",
+            reply_markup=ikb.admin_cancel,
+        )
+        return
+
+    await edit_or_answer(
+        callback,
+        "<b>Пользователь был успешно создан при переносе!</b>",
+        reply_markup=ikb.admin_cancel,
     )
+
 
 

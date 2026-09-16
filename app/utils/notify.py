@@ -1,7 +1,7 @@
 from datetime import datetime, date, timedelta
 from aiogram import Bot
 
-from app.database.requests.notify.delete import delete_notify
+# from app.database.requests.notify.delete import delete_notify
 from app.database.requests.team.select import get_team
 from app.database.requests.user.select import get_users_for_start
 from app.database.requests.user.update import update_user, update_user_is_over
@@ -156,7 +156,7 @@ async def fast_notify(bot: Bot):
             f"🗑 Delete notify {find_notify.id}"
         )
 
-        await delete_notify(find_notify.id)
+        # await delete_notify(find_notify.id)
 
         logger.success(
             f"✅ Notify {find_notify.id} completed"

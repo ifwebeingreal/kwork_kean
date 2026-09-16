@@ -35,3 +35,11 @@ async def update_notify_is_send(notify_id: int, is_send: bool):
             update(Notify).where(Notify.id == notify_id).values(is_send=is_send)
         )
         await session.commit()
+
+
+async def update_notify_is_confirm(notify_id: int, is_confirm: bool):
+    async with async_session() as session:
+        await session.execute(
+            update(Notify).where(Notify.id == notify_id).values(is_confirm=is_confirm)
+        )
+        await session.commit()

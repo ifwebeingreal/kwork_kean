@@ -14,7 +14,7 @@ from app.database.requests.notify.select import get_notify, get_notify_by_team_i
 from app.database.requests.notify.delete import delete_notify
 from app.database.requests.notify.update import (update_notify_date,
                                                  update_notify_username,
-                                                 update_notify_team_id)
+                                                 update_notify_team_id, update_notify_is_confirm)
 from app.database.requests.team.select import get_team
 from app.database.requests.user_team_member.select import get_user_by_tg_id
 from app.database.requests.user.add import set_user
@@ -429,10 +429,24 @@ async def remove_notify(callback: CallbackQuery):
 
 @notify.callback_query(F.data.startswith("confirm_notify_"))
 async def confirm_notify(callback: CallbackQuery):
-    await callback.answer()
-
     notify_id = int(callback.data.rsplit("_", 1)[1])
     notify_info = await get_notify(notify_id)
+
+    if not notify_info:
+        await edit_or_answer(
+            callback,
+            "<b>Пользователь уже удален другим пользователем!</b>",
+            reply_markup=ikb.admin_cancel,
+        )
+        return
+
+    if notify_info.is_confirm:
+        await edit_or_answer(
+            callback,
+            "<b>Пользователь уже перенесен другим пользователем системы!</b>",
+            reply_markup=ikb.admin_cancel,
+        )
+        return
 
     try:
         await set_user(
@@ -440,6 +454,7 @@ async def confirm_notify(callback: CallbackQuery):
             created_at=notify_info.notify_date,
             team_id=notify_info.team_id,
         )
+        await update_notify_is_confirm(notify_id, True)
     except Exception as e:
         await edit_or_answer(
             callback,
@@ -453,6 +468,3 @@ async def confirm_notify(callback: CallbackQuery):
         "<b>Пользователь был успешно создан при переносе!</b>",
         reply_markup=ikb.admin_cancel,
     )
-
-
-

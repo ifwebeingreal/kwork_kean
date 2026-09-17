@@ -16,6 +16,12 @@ admin_cancel = InlineKeyboardMarkup(
     ]
 )
 
+admin_back_to_users = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="users")]
+    ]
+)
+
 date_panel = InlineKeyboardMarkup(
     inline_keyboard=[
         [InlineKeyboardButton(text="Текущая дата", callback_data="today")],

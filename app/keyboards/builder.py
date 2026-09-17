@@ -75,6 +75,27 @@ async def users_cb(users):
     return kb.as_markup()
 
 
+async def users_after_find(users: list):
+    kb = InlineKeyboardBuilder()
+
+    for user in users:
+        kb.row(
+            InlineKeyboardButton(
+                text=f"{user.username}",
+                callback_data=f"user_{user.id}"
+            )
+        )
+
+    kb.row(
+        InlineKeyboardButton(
+            text="🔙 Назад",
+            callback_data=f"users"
+        )
+    )
+
+    return kb.as_markup()
+
+
 async def users_to_pull_cb(users, pull_id: int):
     kb = InlineKeyboardBuilder()
 
@@ -86,6 +107,12 @@ async def users_to_pull_cb(users, pull_id: int):
             )
         )
 
+    kb.row(
+        InlineKeyboardButton(
+            text="🔎 Найти пользователя",
+            callback_data="search_user"
+        )
+    )
     kb.row(
         InlineKeyboardButton(
             text="➕ Добавить пользователя",

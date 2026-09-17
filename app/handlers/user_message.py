@@ -10,13 +10,14 @@ import app.keyboards.builder as bkb
 from app.database.requests.team.select import get_team
 
 from app.database.requests.user.add import set_user
-from app.database.requests.user.select import get_user, get_users, get_users_by_team
+from app.database.requests.user.select import (get_user, get_users,
+                                               get_users_by_team, get_users_by_username)
 from app.database.requests.user.delete import delete_user
 from app.database.requests.user.update import update_user
 from app.database.requests.admin.select import get_admin_by_tg_id
 from app.database.requests.user_team_member.select import get_user_by_tg_id
 
-from app.states import AddUser, EditUser
+from app.states import AddUser, EditUser, FindUser
 
 user = Router()
 
@@ -442,6 +443,34 @@ async def check_select_team(callback: CallbackQuery, state: FSMContext):
     )
 
     await state.clear()
+
+
+@user.callback_query(F.data == "search_user")
+async def search_user(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text(
+        "<b>Введите username пользователя:</b>",
+        reply_markup=ikb.admin_back_to_users
+    )
+
+    await state.set_state(FindUser.username)
+
+
+@user.message(FindUser.username)
+async def check_username_for_find(message: Message, state: FSMContext):
+    if message.text:
+        users = await get_users_by_username(message.text)
+
+        await message.answer(
+            f"<b>Найденные пользователи по запросу: {message.text}</b>",
+            reply_markup=await bkb.users_after_find(users)
+        )
+
+        await state.clear()
+    else:
+        await message.answer(
+            "<b>Username должен быть текстом!</b>",
+            reply_markup=ikb.admin_back_to_users
+        )
 
 
 @user.callback_query(F.data.startswith("delete_user_"))

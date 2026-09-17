@@ -23,6 +23,15 @@ async def get_users():
         return users.all()
 
 
+async def get_users_by_username(username: str):
+    async with async_session() as session:
+        users = await session.scalars(
+            select(User)
+            .where(User.username.like(f"%{username}%"))
+        )
+        return users.all()
+
+
 async def get_users_count():
     async with async_session() as session:
         count = await session.scalar(select(func.count()).select_from(User))

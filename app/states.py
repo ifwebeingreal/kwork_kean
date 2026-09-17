@@ -17,6 +17,10 @@ class EditUser(StatesGroup):
     new_select_team = State()
 
 
+class FindUser(StatesGroup):
+    username = State()
+
+
 class AddNotify(StatesGroup):
     username = State()
     notify_date = State()

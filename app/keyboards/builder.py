@@ -60,6 +60,13 @@ async def users_cb(users):
 
     kb.row(
         InlineKeyboardButton(
+            text="🔎 Найти пользователя",
+            callback_data="search_user"
+        )
+    )
+
+    kb.row(
+        InlineKeyboardButton(
             text="➕ Добавить пользователя",
             callback_data="add_user"
         )
